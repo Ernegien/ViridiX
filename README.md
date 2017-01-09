@@ -14,3 +14,8 @@ The solution's project names are all loosely artisan-based, currently composed o
   - Ventriloquist - Provides the ability to remotely control and view an Xbox.
 
 All libraries should be developed with CLS compliancy in mind to allow for easier VB.NET consumption using their baby datatypes.
+
+#### Requirements
+
+[.NET Framework 4.5.2](https://www.microsoft.com/en-us/download/details.aspx?id=42643)
+[Visual Studio Community 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48146)
