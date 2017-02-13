@@ -86,6 +86,5 @@ namespace ViridiX.Mason.Logging
         {
             Serilog.Log.CloseAndFlush();
         }
-
     }
 }
