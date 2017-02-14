@@ -17,5 +17,5 @@ All libraries should be developed with CLS compliancy in mind to allow for easie
 
 #### Requirements
 
-[.NET Framework 4.5.2](https://www.microsoft.com/en-us/download/details.aspx?id=42643)  
+[.NET Framework 4.6.2](https://www.microsoft.com/en-us/download/details.aspx?id=53345)  
 [Visual Studio Community 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48146)
