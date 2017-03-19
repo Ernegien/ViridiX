@@ -48,8 +48,20 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="AssemblyGlobals.cs" />
+    <Compile Include="XboxTests.cs" />
+    <Compile Include="XboxConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ViridiX.Linguist\ViridiX.Linguist.csproj">
+      <Project>{e5ca613f-4b11-4b42-b0df-b493e06b02b4}</Project>
+      <Name>ViridiX.Linguist</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ViridiX.Mason\ViridiX.Mason.csproj">
+      <Project>{cd0236f3-7af3-44ce-a86a-34da28e48207}</Project>
+      <Name>ViridiX.Mason</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

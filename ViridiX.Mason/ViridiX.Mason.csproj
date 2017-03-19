@@ -58,6 +58,7 @@
     <Compile Include="Logging\LoggerBase.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\SeriLogger.cs" />
+    <Compile Include="Network\BlockingNetworkStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

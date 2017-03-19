@@ -41,9 +41,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Network\NotificationEventArgs.cs" />
+    <Compile Include="Network\StatusResponse.cs" />
+    <Compile Include="Network\XboxConnection.cs" />
+    <Compile Include="Network\XboxConnectionInformation.cs" />
+    <Compile Include="Network\XboxConnectionOptions.cs" />
+    <Compile Include="Network\XboxResponseType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Xbox.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ViridiX.Mason\ViridiX.Mason.csproj">
+      <Project>{cd0236f3-7af3-44ce-a86a-34da28e48207}</Project>
+      <Name>ViridiX.Mason</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

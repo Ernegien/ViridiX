@@ -32,8 +32,14 @@ namespace ViridiX.Mason.Logging
         /// </summary>
         public override LogLevel Level
         {
-            get { return (LogLevel)_levelSwitch.MinimumLevel; }
-            set { _levelSwitch.MinimumLevel = (LogEventLevel)value; }
+            get { return (LogLevel) _levelSwitch.MinimumLevel; }
+            set
+            {
+                if (value == (LogLevel) _levelSwitch.MinimumLevel) return;
+
+                Info(null, "Logger level changed to {LogLevel}.", Level);
+                _levelSwitch.MinimumLevel = (LogEventLevel)value;
+            }
         }
 
         /// <summary>
@@ -65,9 +71,16 @@ namespace ViridiX.Mason.Logging
         /// <param name="parameters">Additional context.</param>
         public override void Log(LogLevel level, Exception exception, string message, params object[] parameters)
         {
-            if (IsEnabled)
+            try
             {
-                Serilog.Log.Write((LogEventLevel)level, exception, message, parameters);
+                if (IsEnabled)
+                {
+                    Serilog.Log.Write((LogEventLevel)level, exception, message, parameters);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
