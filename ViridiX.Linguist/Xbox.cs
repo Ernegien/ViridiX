@@ -138,7 +138,7 @@ namespace ViridiX.Linguist
                 Thread.Sleep(1);
 
                 // only bother if it's been fully converted
-                if (!NotificationSession.Options.HasFlag(XboxConnectionOptions.NotificationSession))
+                if (NotificationSession == null || !NotificationSession.Options.HasFlag(XboxConnectionOptions.NotificationSession))
                     continue;
                
                 // look for a new notification
