@@ -14,6 +14,9 @@ namespace ViridiX.Linguist.Memory
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Xbox _xbox;
 
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private readonly ILogger _logger;
+
         /// <summary>
         /// TODO: description
         /// </summary>
@@ -35,6 +38,7 @@ namespace ViridiX.Linguist.Memory
                 throw new ArgumentNullException(nameof(xbox));
 
             _xbox = xbox;
+            _logger = logger;
             Stream = new XboxMemoryStream(xbox, logger);
         }
 
