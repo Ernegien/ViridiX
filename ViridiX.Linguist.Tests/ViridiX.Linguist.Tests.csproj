@@ -51,6 +51,7 @@
     <Compile Include="AssemblyGlobals.cs" />
     <Compile Include="XboxMemoryStreamTests.cs" />
     <Compile Include="XboxMemoryTests.cs" />
+    <Compile Include="XboxSystemTests.cs" />
     <Compile Include="XboxTests.cs" />
     <Compile Include="XboxConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
