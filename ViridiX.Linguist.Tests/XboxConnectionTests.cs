@@ -34,6 +34,8 @@ namespace ViridiX.Linguist.Tests
         [TestMethod]
         public void CommandPerformanceTest()
         {
+            const int testSeconds = 1;
+
             // temporarly decrease the verbosity to prevent useless entries from getting logged
             AssemblyGlobals.Logger.Level = LogLevel.Info;
 
@@ -41,7 +43,7 @@ namespace ViridiX.Linguist.Tests
 
             int count = 0;
             Stopwatch timer = Stopwatch.StartNew();
-            while (timer.Elapsed.TotalSeconds < 3)
+            while (timer.Elapsed.TotalSeconds < testSeconds)
             {
                 _connection.SendCommand(string.Empty);
                 count++;
@@ -67,7 +69,7 @@ namespace ViridiX.Linguist.Tests
 
             XboxConnectionOptions options = XboxConnectionOptions.PerformanceMode;
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 50; i++)
             {
                 using (_connection = new XboxConnection(AssemblyGlobals.Logger))
                 {

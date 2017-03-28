@@ -1,9 +1,10 @@
-﻿namespace ViridiX.Linguist.Network
+﻿
+namespace ViridiX.Linguist.Network
 {
     /// <summary>
     /// Xbox command status response.
     /// </summary>
-    public class StatusResponse
+    public class XboxCommandResponse
     {
         /// <summary>
         /// TODO: description
@@ -13,7 +14,7 @@
         /// <summary>
         /// TODO: description
         /// </summary>
-        public XboxResponseType Type { get; }
+        public XboxCommandResponseType Type { get; }
 
         /// <summary>
         /// TODO: description
@@ -31,7 +32,7 @@
         /// <param name="full"></param>
         /// <param name="type"></param>
         /// <param name="message"></param>
-        public StatusResponse(string full, XboxResponseType type, string message)
+        public XboxCommandResponse(string full, XboxCommandResponseType type, string message)
         {
             Full = full;
             Type = type;

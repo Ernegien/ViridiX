@@ -3,7 +3,7 @@
     /// <summary>
     /// TODO: description
     /// </summary>
-    public enum XboxResponseType
+    public enum XboxCommandResponseType
     {
         /// <summary>
         /// TODO: description

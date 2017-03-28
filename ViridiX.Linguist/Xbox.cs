@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ViridiX.Linguist.Memory;
 using ViridiX.Linguist.Network;
 using ViridiX.Mason.Logging;
 
@@ -23,6 +24,16 @@ namespace ViridiX.Linguist
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private bool _isDisposed;
+
+        /// <summary>
+        /// TODO: description
+        /// </summary>
+        public IPAddress PreviousConnectionAddress { get; private set; }
+
+        /// <summary>
+        /// TODO: description
+        /// </summary>
+        public XboxConnectionOptions PreviousConnectionOptions { get; private set; }
 
         /// <summary>
         /// Session reserved for sending commands and receiving data.
@@ -50,6 +61,11 @@ namespace ViridiX.Linguist
         public event EventHandler<NotificationEventArgs> NotificationReceived;
 
         /// <summary>
+        /// TODO: description
+        /// </summary>
+        public XboxMemory Memory { get; private set; }
+
+        /// <summary>
         /// Constructs the Xbox class.
         /// </summary>
         /// <param name="logger"></param>
@@ -62,11 +78,11 @@ namespace ViridiX.Linguist
         }
 
         /// <summary>
-        /// Destructs the Xbox class.
+        /// Finalizes the Xbox class.
         /// </summary>
         ~Xbox()
         {
-            Dispose();
+            Dispose(false);
         }
 
         /// <summary>
@@ -75,6 +91,7 @@ namespace ViridiX.Linguist
         private void Initialize()
         {
             // TODO: memory, filesystem, audio/video etc.
+            Memory = new XboxMemory(this, _logger);
         }
 
         /// <summary>
@@ -87,6 +104,8 @@ namespace ViridiX.Linguist
             Disconnect();
             CommandSession = new XboxConnection(_logger);
             CommandSession.Open(ip, options);
+            PreviousConnectionAddress = CommandSession.Ip;
+            PreviousConnectionOptions = CommandSession.Options;
             NotificationSession = new XboxConnection(_logger);
             NotificationSession.Open(ip, XboxConnectionOptions.NotificationSession);
             Initialize();
@@ -97,8 +116,14 @@ namespace ViridiX.Linguist
         /// </summary>
         public void Disconnect()
         {
+            // TODO: dispose subsystems before disconnecting
+            Memory?.Dispose();
+            Memory = null;
+
             CommandSession?.Dispose();
+            CommandSession = null;
             NotificationSession?.Dispose();
+            NotificationSession = null;
         }
 
         /// <summary>
@@ -106,11 +131,11 @@ namespace ViridiX.Linguist
         /// </summary>
         public void Reconnect()
         {
-            if (CommandSession?.Ip == null)
+            if (PreviousConnectionAddress == null)
                 throw new Exception("No previous connection detected.");
 
             Disconnect();
-            Connect(CommandSession.Ip, CommandSession.Options);
+            Connect(PreviousConnectionAddress, PreviousConnectionOptions);
         }
 
         /// <summary>
@@ -118,14 +143,30 @@ namespace ViridiX.Linguist
         /// </summary>
         public void Dispose()
         {
-            _isDisposed = true;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            Disconnect();
+        /// <summary>
+        /// Disposes the Xbox.
+        /// </summary>
+        public void Dispose(bool disposing)
+        {
+            try
+            {
+                if (_isDisposed) return;
 
-            NotificationHistory = null;
-            NotificationReceived = null;
+                if (disposing)
+                {
+                    Disconnect();
+                }
 
-            // TODO: dispose sub-systems
+                // dispose any unmanaged resources
+            }
+            finally
+            {
+                _isDisposed = true;
+            }
         }
 
         /// <summary>
@@ -137,12 +178,12 @@ namespace ViridiX.Linguist
             {
                 Thread.Sleep(1);
 
-                // only bother if it's been fully converted
+                // only bother if it's been fully converted, otherwise it will gobble up the initial status response
                 if (NotificationSession == null || !NotificationSession.Options.HasFlag(XboxConnectionOptions.NotificationSession))
                     continue;
-               
+
                 // look for a new notification
-                string notification = NotificationSession.TryReceiveLine();
+                string notification = NotificationSession?.TryReceiveLine();
                 if (notification == null) continue;
 
                 // save for later

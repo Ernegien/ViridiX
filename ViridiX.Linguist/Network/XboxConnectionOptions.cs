@@ -16,16 +16,16 @@ namespace ViridiX.Linguist.Network
         /// <summary>
         /// Substitutes most sleep calls with nothing at the expense of higher CPU usage.
         /// </summary>
-        PerformanceMode,
+        PerformanceMode = 1 << 0,
 
         /// <summary>
-        /// Provides additional safety by severely limiting performance waiting the full jitter threshold for an idle link and flushing before sending each command.
+        /// Provides additional safety where possible.
         /// </summary>
-        SafeMode,
+        ProtectedMode = 1 << 1,
 
         /// <summary>
         /// Indicates whether or not this connection is reserved for notifications.
         /// </summary>
-        NotificationSession
+        NotificationSession = 1 << 3
     }
 }

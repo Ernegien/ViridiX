@@ -117,13 +117,15 @@ namespace ViridiX.Linguist.Network
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            try
             {
+                if (_isDisposed) return;
+
                 _logger?.Info("Disconnecting");
 
                 if (!Options.HasFlag(XboxConnectionOptions.NotificationSession))
                 {
-                    // attempt to gracefully inform the xbox we're leaving
+                    // avoid port exhaustion by attempting to gracefully inform the xbox we're leaving
                     SendCommandText("bye");
                 }
 
@@ -134,10 +136,13 @@ namespace ViridiX.Linguist.Network
                     Stream?.Dispose();
                 }
 
-                _isDisposed = true;
+                // dispose any unmanaged resources
             }
-
-            base.Dispose(disposing);
+            finally
+            {
+                _isDisposed = true;
+                base.Dispose(disposing);
+            }
         }
 
         #endregion
@@ -186,8 +191,8 @@ namespace ViridiX.Linguist.Network
             {
                 SendCommandText("notify");
 
-                // wait an extra 250 milliseconds to give the Xbox enough time 
-                if (ReceiveStatusResponse(ReceiveTimeout + 250).Type != XboxResponseType.NowNotifySession)
+                // wait a bit extra to give the Xbox enough time
+                if (ReceiveStatusResponse(ReceiveTimeout + 50).Type != XboxCommandResponseType.NowNotifySession)
                 {
                     throw new Exception("Failed to open notification session.");
                 }
@@ -247,15 +252,24 @@ namespace ViridiX.Linguist.Network
         /// <returns></returns>
         public string TryReceiveLine()
         {
-            int lineSize = GetAvailableLineSize();
+            try
+            {
+                int lineSize = GetAvailableLineSize();
 
-            // return null if no full line available
-            if (lineSize <= -1) return null;
+                // return null if no full line available
+                if (lineSize <= -1) return null;
 
-            // otherwise return the line
-            byte[] textBuffer = new byte[lineSize];
-            Client.Receive(textBuffer, 0, lineSize, SocketFlags.None);
-            return Encoding.ASCII.GetString(textBuffer, 0, lineSize - NewLine.Length);
+                // otherwise return the line
+                byte[] textBuffer = new byte[lineSize];
+                Client.Receive(textBuffer, 0, lineSize, SocketFlags.None);
+                string line = Encoding.ASCII.GetString(textBuffer, 0, lineSize - NewLine.Length);
+                _logger?.Trace("Line Received: {0}", line);
+                return line;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -333,7 +347,7 @@ namespace ViridiX.Linguist.Network
         {
             string commandText = string.Format(command, args);
             _logger?.Trace("Sending command: {Command}", commandText);
-            Writer.Write(Encoding.ASCII.GetBytes(commandText + NewLine));
+            Writer?.Write(Encoding.ASCII.GetBytes(commandText + NewLine));
         }
 
         /// <summary>
@@ -342,9 +356,9 @@ namespace ViridiX.Linguist.Network
         /// <param name="command">Command to be sent</param>
         /// <param name="args">Arguments</param>
         /// <returns>Status response</returns>
-        public StatusResponse SendCommand(string command, params object[] args)
+        public XboxCommandResponse SendCommand(string command, params object[] args)
         {
-            if (Options.HasFlag(XboxConnectionOptions.SafeMode))
+            if (Options.HasFlag(XboxConnectionOptions.ProtectedMode))
             {
                 FlushAll();
             }
@@ -363,9 +377,9 @@ namespace ViridiX.Linguist.Network
         /// <param name="command">The command to be sent.</param>
         /// <param name="args">The formatted command arguments.</param>
         /// <returns>The status response.</returns>
-        public StatusResponse SendCommandStrict(string command, params object[] args)
+        public XboxCommandResponse SendCommandStrict(string command, params object[] args)
         {
-            StatusResponse response = SendCommand(command, args);
+            XboxCommandResponse response = SendCommand(command, args);
             if (response.Success) return response;
             throw new Exception(response.Full);
         }
@@ -375,7 +389,7 @@ namespace ViridiX.Linguist.Network
         /// </summary>
         /// <param name="timeout">The optional receive timeout in milliseconds, overriding TcpClient.ReceiveTimeout.</param>
         /// <returns></returns>
-        public StatusResponse ReceiveStatusResponse(int? timeout = null)
+        public XboxCommandResponse ReceiveStatusResponse(int? timeout = null)
         {
             int origTimeout = ReceiveTimeout;
             if (timeout != null)
@@ -386,8 +400,7 @@ namespace ViridiX.Linguist.Network
             try
             {
                 string response = ReceiveLine();
-                _logger?.Trace("Received response: {Response}", response);
-                return new StatusResponse(response, (XboxResponseType)Convert.ToInt32(response.Remove(3)), response.Remove(0, 5));
+                return new XboxCommandResponse(response, (XboxCommandResponseType)Convert.ToInt32(response.Remove(3)), response.Remove(0, 5));
             }
             finally
             {
