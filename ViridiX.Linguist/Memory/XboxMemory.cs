@@ -52,6 +52,7 @@ namespace ViridiX.Linguist.Memory
             _reader = new BinaryReader(Stream);
             _writer = new BinaryWriter(Stream);
 
+            _logger?.Info("XboxMemory subsystem initialized");
         }
 
         /// <summary>
@@ -118,8 +119,8 @@ namespace ViridiX.Linguist.Memory
             // TODO: check if address range has any code pages if safe mode is enabled
             // TODO: reimplement with xbox-side script
 
-            if ((address % 8) != 0) throw new ArgumentException("Address must be aligned on an 8-byte boundary.", nameof(address));
-            if ((length % 8) != 0) throw new ArgumentException("Length must be a multiple of 8.", nameof(length));
+            if ((address % 8) != 0) throw new ArgumentException("Address must be aligned on an 8-byte boundary", nameof(address));
+            if ((length % 8) != 0) throw new ArgumentException("Length must be a multiple of 8", nameof(length));
 
             _xbox.CommandSession.SendCommandStrict("getsum addr={0} length={1} blocksize={1}", address.ToHexString(), length);
             return _xbox.CommandSession.Reader.ReadUInt32();
@@ -144,18 +145,23 @@ namespace ViridiX.Linguist.Memory
         /// <returns></returns>
         public bool IsValidAddressRange(long startAddress, long endAddress)
         {
+            bool isValid = true;
+
             // TODO: offer secondary optimized method that executes a remote script on the xbox instead
             long address = startAddress & 0xFFFFF000;
             while (address < endAddress)
             {
                 if (!IsValidAddress(address))
                 {
-                    return false;
+                    isValid = false;
+                    break;
                 }
                 address += PageSize;
             }
 
-            return true;
+            _logger?.Trace("Is address range {0}-{1} valid? {2}", startAddress.ToHexString(), endAddress.ToHexString(), isValid);
+
+            return isValid;
         }
 
         /// <summary>
@@ -165,7 +171,6 @@ namespace ViridiX.Linguist.Memory
         {
             Stream?.Dispose();
         }
-
 
         #region Explicit Reads
 

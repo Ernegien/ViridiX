@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using ViridiX.Linguist.Network;
 using ViridiX.Mason.Extensions;
 using ViridiX.Mason.Logging;
@@ -47,6 +48,8 @@ namespace ViridiX.Linguist.System
             }
             set
             {
+                _logger?.Info("Setting the Xbox time to {0}", value.ToString(CultureInfo.InvariantCulture));
+
                 long fileTime = value.ToFileTimeUtc();
                 long hi = fileTime >> 32;
                 long lo = fileTime & uint.MaxValue;
@@ -66,6 +69,8 @@ namespace ViridiX.Linguist.System
 
             _xbox = xbox;
             _logger = logger;
+
+            _logger?.Info("XboxSystem subsystem initialized");
         }
     }
 }

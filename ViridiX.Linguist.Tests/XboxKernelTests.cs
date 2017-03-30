@@ -57,6 +57,9 @@ namespace ViridiX.Linguist.Tests
         [TestMethod]
         public void MemDumpTest()
         {
+            // temporarly decrease the verbosity to prevent useless entries from getting logged
+            AssemblyGlobals.Logger.Level = LogLevel.Info;
+
             string temp = Path.GetTempFileName();
             _xbox.Kernel.MemoryDump(temp);
             File.Delete(temp);

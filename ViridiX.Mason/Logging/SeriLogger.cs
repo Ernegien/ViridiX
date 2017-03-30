@@ -37,7 +37,7 @@ namespace ViridiX.Mason.Logging
             {
                 if (value == (LogLevel) _levelSwitch.MinimumLevel) return;
 
-                Info(null, "Logger level changed to {LogLevel}.", Level);
+                Info(null, "Logger level changed to {LogLevel}", Level);
                 _levelSwitch.MinimumLevel = (LogEventLevel)value;
             }
         }
@@ -59,7 +59,7 @@ namespace ViridiX.Mason.Logging
                 flushToDiskInterval: TimeSpan.FromSeconds(10))
                 .CreateLogger();
 
-            Info(null, "Logger initialized with {LogLevel} level.", Level);
+            Info(null, "Logger initialized with {LogLevel} level", Level);
         }
 
         /// <summary>

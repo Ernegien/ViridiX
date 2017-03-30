@@ -63,7 +63,7 @@ namespace ViridiX.Linguist.Kernel
 
             Exports = new XboxKernelExports(ExportTable);
 
-            _logger?.Trace("Initialized XboxKernel subsystem.");
+            _logger?.Info("XboxKernel subsystem initialized");
         }
 
         /// <summary>
@@ -72,6 +72,8 @@ namespace ViridiX.Linguist.Kernel
         /// <returns>Kernel export addresses.</returns>
         private long[] GetExportTable()
         {
+            _logger?.Info("Reading kernel export table");
+
             // gets export table with function offsets
             long peBase = _xbox.Memory.ReadUInt32(Address + 0x3C);
             long dataDirectory = _xbox.Memory.ReadUInt32(Address + peBase + 0x78);

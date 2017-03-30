@@ -167,7 +167,7 @@ namespace ViridiX.Linguist.Network
                 throw new Exception("An XboxConnection can only be opened once.");
             }
 
-            _logger?.Info("Connecting to {Type} session on {IP}", options.HasFlag(XboxConnectionOptions.NotificationSession) ? "notification" : "command", ip);
+            _logger?.Info("Establishing {Type} session with {IP}", options.HasFlag(XboxConnectionOptions.NotificationSession) ? "notification" : "command", ip);
 
             if (!ConnectAsync(ip, Port).Wait(ReceiveTimeout))
             {
