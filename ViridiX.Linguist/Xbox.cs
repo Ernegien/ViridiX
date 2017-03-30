@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ViridiX.Linguist.Kernel;
 using ViridiX.Linguist.Memory;
 using ViridiX.Linguist.Network;
 using ViridiX.Linguist.System;
@@ -72,6 +73,11 @@ namespace ViridiX.Linguist
         public XboxSystem System { get; private set; }
 
         /// <summary>
+        /// TODO: description
+        /// </summary>
+        public XboxKernel Kernel { get; private set; }
+
+        /// <summary>
         /// Constructs the Xbox class.
         /// </summary>
         /// <param name="logger"></param>
@@ -98,6 +104,7 @@ namespace ViridiX.Linguist
         {
             // TODO: memory, filesystem, audio/video etc.
             Memory = new XboxMemory(this, _logger);
+            Kernel = new XboxKernel(this, _logger);
             System = new XboxSystem(this, _logger);
         }
 

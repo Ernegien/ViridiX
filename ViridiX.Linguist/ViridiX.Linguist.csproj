@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Kernel\XboxKernel.cs" />
+    <Compile Include="Kernel\XboxKernelExports.cs" />
     <Compile Include="Memory\XboxMemory.cs" />
     <Compile Include="Memory\XboxMemoryFlags.cs" />
     <Compile Include="Memory\XboxMemoryRegion.cs" />

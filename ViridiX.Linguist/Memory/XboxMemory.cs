@@ -134,7 +134,7 @@ namespace ViridiX.Linguist.Memory
         {
             // TODO: offer secondary optimized method that executes a remote script on the xbox instead
             long address = startAddress & 0xFFFFF000;
-            while (address <= endAddress)
+            while (address < endAddress)
             {
                 if (!IsValidAddress(address))
                 {
