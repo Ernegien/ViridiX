@@ -25,7 +25,7 @@ namespace ViridiX.Linguist.Tests
         [TestMethod]
         public void ReadTest()
         {
-            Assert.AreEqual(_xbox.Memory.Stream.ReadString(0x10000, 4), "XBEH");
+            Assert.AreEqual(_xbox.Memory.ReadString(0x10000, 4), "XBEH");
 
             // TODO: more
         }

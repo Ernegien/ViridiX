@@ -58,8 +58,8 @@ namespace ViridiX.Linguist.Kernel
             _logger = logger;
             ExportTable = GetExportTable();
 
-            Date = _xbox.Memory.Stream.ReadUInt32(Address + 0xF0).ToDateTimeFromEpochSeconds();
-            Size = _xbox.Memory.Stream.ReadInt32(Address + 0x138);
+            Date = _xbox.Memory.ReadUInt32(Address + 0xF0).ToDateTimeFromEpochSeconds();
+            Size = _xbox.Memory.ReadInt32(Address + 0x138);
 
             Exports = new XboxKernelExports(ExportTable);
 
@@ -73,11 +73,11 @@ namespace ViridiX.Linguist.Kernel
         private long[] GetExportTable()
         {
             // gets export table with function offsets
-            long peBase = _xbox.Memory.Stream.ReadUInt32(Address + 0x3C);
-            long dataDirectory = _xbox.Memory.Stream.ReadUInt32(Address + peBase + 0x78);
-            int exportCount = _xbox.Memory.Stream.ReadInt32(Address + dataDirectory + 0x14);
-            long exportAddress = Address + _xbox.Memory.Stream.ReadUInt32(Address + dataDirectory + 0x1C);
-            byte[] exportBytes = _xbox.Memory.Stream.ReadBytes(exportAddress, exportCount * sizeof(uint));
+            long peBase = _xbox.Memory.ReadUInt32(Address + 0x3C);
+            long dataDirectory = _xbox.Memory.ReadUInt32(Address + peBase + 0x78);
+            int exportCount = _xbox.Memory.ReadInt32(Address + dataDirectory + 0x14);
+            long exportAddress = Address + _xbox.Memory.ReadUInt32(Address + dataDirectory + 0x1C);
+            byte[] exportBytes = _xbox.Memory.ReadBytes(exportAddress, exportCount * sizeof(uint));
 
             // converts them to absolute addresses
             long[] exportTable = new long[exportCount + 1];
@@ -126,7 +126,7 @@ namespace ViridiX.Linguist.Kernel
                     position < Address + Size && _xbox.Memory.IsValidAddress(position);
                     position += XboxMemory.PageSize)
                 {
-                    bw.Write(_xbox.Memory.Stream.ReadBytes(position, XboxMemory.PageSize));
+                    bw.Write(_xbox.Memory.ReadBytes(position, XboxMemory.PageSize));
                 }
             }
 
