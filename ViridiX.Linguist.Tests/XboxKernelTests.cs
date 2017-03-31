@@ -37,6 +37,8 @@ namespace ViridiX.Linguist.Tests
             // check that the date makes sense
             Assert.IsTrue(_xbox.Kernel.Date < DateTime.Now);
             Assert.IsTrue(_xbox.Kernel.Date > new DateTime(1999, 1, 1, 0, 0, 0));
+
+            var version = _xbox.Kernel.Version;
         }
 
         [TestMethod]

@@ -45,6 +45,19 @@ namespace ViridiX.Linguist.Kernel
         public XboxKernelExports Exports { get; }
 
         /// <summary>
+        /// The Xbox kernel build version.
+        /// </summary>
+        public Version Version
+        {
+            get
+            {
+                var version = _xbox.Memory.ReadUInt32(Exports.XboxKrnlVersion);
+                return new Version((byte) (version & 0xFF), (byte) ((version >> 8) & 0xFF),
+                    (byte) ((version >> 16) & 0xFF), (byte) ((version >> 24) & 0xFF));
+            }
+        }
+
+        /// <summary>
         /// Initializes communication with the Xbox kernel.
         /// </summary>
         /// <param name="xbox"></param>

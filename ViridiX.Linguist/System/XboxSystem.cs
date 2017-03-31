@@ -58,6 +58,22 @@ namespace ViridiX.Linguist.System
         }
 
         /// <summary>
+        /// Xbox system hardware information.
+        /// </summary>
+        public XboxHardwareInformation HardwareInfo
+        {
+            get
+            {
+                XboxHardwareInformation info = new XboxHardwareInformation();
+                var data = _xbox.Memory.ReadBytes(_xbox.Kernel.Exports.HardwareInfo, 6);
+                info.Flags = (XboxHardwareFlags)BitConverter.ToUInt32(data, 0);
+                info.GpuRevision = data[4];
+                info.McpRevision = data[5];
+                return info;
+            }
+        }
+
+        /// <summary>
         /// TODO: description
         /// </summary>
         /// <param name="xbox"></param>

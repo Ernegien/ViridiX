@@ -44,5 +44,11 @@ namespace ViridiX.Linguist.Tests
             _xbox.System.Time = DateTime.Now;   // syncs xbox time with computer time instead of preserving original, assumes this isn't an issue
             Assert.IsTrue(_xbox.System.Time - DateTime.Now < TimeSpan.FromSeconds(3));
         }
+
+        [TestMethod]
+        public void HardwareInfoTest()
+        {
+            var hardware = _xbox.System.HardwareInfo;
+        }
     }
 }
