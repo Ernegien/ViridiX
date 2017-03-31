@@ -83,12 +83,12 @@ namespace ViridiX.Linguist.Kernel
 
             // converts them to absolute addresses
             long[] exportTable = new long[exportCount + 1];
-            for (int i = 1; i < exportCount; i++)
+            for (int i = 0; i < exportCount; i++)
             {
                 long offset = BitConverter.ToUInt32(exportBytes, i * 4);
                 if (offset != 0)
                 {
-                    exportTable[i] = Address + offset;
+                    exportTable[i + 1] = Address + offset;
                 }
             }
                 

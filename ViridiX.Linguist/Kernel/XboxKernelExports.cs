@@ -2037,7 +2037,7 @@ namespace ViridiX.Linguist.Kernel
             MmDeleteKernelStack = table[170];
             MmFreeContiguousMemory = table[171];
             MmFreeSystemMemory = table[172];
-            MmGetPhysicalAddress = table[172];
+            MmGetPhysicalAddress = table[173];
             MmIsAddressValid = table[174];
             MmLockUnlockBufferPages = table[175];
             MmLockUnlockPhysicalPage = table[176];
