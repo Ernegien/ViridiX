@@ -55,6 +55,9 @@
     <Compile Include="Network\XboxConnectionInformation.cs" />
     <Compile Include="Network\XboxConnectionOptions.cs" />
     <Compile Include="Network\XboxCommandResponseType.cs" />
+    <Compile Include="Process\XboxModule.cs" />
+    <Compile Include="Process\XboxModuleSection.cs" />
+    <Compile Include="Process\XboxProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\XboxSystem.cs" />
     <Compile Include="Xbox.cs" />

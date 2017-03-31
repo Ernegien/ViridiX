@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using ViridiX.Linguist.Kernel;
 using ViridiX.Linguist.Memory;
 using ViridiX.Linguist.Network;
+using ViridiX.Linguist.Process;
 using ViridiX.Linguist.System;
 using ViridiX.Mason.Logging;
 
@@ -78,6 +79,11 @@ namespace ViridiX.Linguist
         public XboxKernel Kernel { get; private set; }
 
         /// <summary>
+        /// TODO: description
+        /// </summary>
+        public XboxProcess Process { get; private set; }
+
+        /// <summary>
         /// Constructs the Xbox class.
         /// </summary>
         /// <param name="logger"></param>
@@ -102,10 +108,10 @@ namespace ViridiX.Linguist
         /// </summary>
         private void Initialize()
         {
-            // TODO: memory, filesystem, audio/video etc.
             Memory = new XboxMemory(this, _logger);
             Kernel = new XboxKernel(this, _logger);
             System = new XboxSystem(this, _logger);
+            Process = new XboxProcess(this, _logger);
 
             _logger?.Info("All Xbox subsystems have been successfully initialized");
         }
