@@ -19,7 +19,7 @@ namespace ViridiX.Mason.Extensions
         }
 
         /// <summary>
-        /// Temporarily extends the receive timeout value.
+        /// Temporarily extends the send timeout value.
         /// Wrap with a using statement to control scope automatically, or dispose manually.
         /// </summary>
         /// <param name="client">The TcpClient.</param>
