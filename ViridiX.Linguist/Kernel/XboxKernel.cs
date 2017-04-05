@@ -61,14 +61,13 @@ namespace ViridiX.Linguist.Kernel
         /// Initializes communication with the Xbox kernel.
         /// </summary>
         /// <param name="xbox"></param>
-        /// <param name="logger"></param>
-        public XboxKernel(Xbox xbox, ILogger logger)
+        public XboxKernel(Xbox xbox)
         {
             if (xbox == null)
                 throw new ArgumentNullException(nameof(xbox));
 
             _xbox = xbox;
-            _logger = logger;
+            _logger = xbox.Logger;
             ExportTable = GetExportTable();
 
             Date = _xbox.Memory.ReadUInt32(Address + 0xF0).ToDateTimeFromEpochSeconds();

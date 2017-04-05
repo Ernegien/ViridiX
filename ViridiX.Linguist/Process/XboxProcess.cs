@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using ViridiX.Mason.Extensions;
 using ViridiX.Mason.Logging;
 
@@ -66,16 +67,25 @@ namespace ViridiX.Linguist.Process
         /// Initializes the Xbox process subsystem.
         /// </summary>
         /// <param name="xbox"></param>
-        /// <param name="logger"></param>
-        public XboxProcess(Xbox xbox, ILogger logger)
+        public XboxProcess(Xbox xbox)
         {
             if (xbox == null)
                 throw new ArgumentNullException(nameof(xbox));
 
             _xbox = xbox;
-            _logger = logger;
+            _logger = xbox.Logger;
 
             _logger?.Info("XboxProcess subsystem initialized");
+        }
+
+        /// <summary>
+        /// Gets an Xbox module by name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public XboxModule GetModule(string name)
+        {
+            return _xbox.Process.Modules.FirstOrDefault(module => module.Name.Equals(name));
         }
     }
 }

@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ViridiX.Linguist.Debug;
+using ViridiX.Linguist.FileSystem;
 using ViridiX.Linguist.Kernel;
 using ViridiX.Linguist.Memory;
 using ViridiX.Linguist.Network;
@@ -23,18 +25,20 @@ namespace ViridiX.Linguist
     public class Xbox : IDisposable
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ILogger _logger;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private bool _isDisposed;
 
         /// <summary>
-        /// TODO: description
+        /// The logger.
+        /// </summary>
+        public readonly ILogger Logger;
+
+        /// <summary>
+        /// The last used connection address.
         /// </summary>
         public IPAddress PreviousConnectionAddress { get; private set; }
 
         /// <summary>
-        /// TODO: description
+        /// The last used connection options.
         /// </summary>
         public XboxConnectionOptions PreviousConnectionOptions { get; private set; }
 
@@ -61,7 +65,7 @@ namespace ViridiX.Linguist
         /// <summary>
         /// Fires when an Xbox notification message has been received.
         /// </summary>
-        public event EventHandler<NotificationEventArgs> NotificationReceived;
+        public event EventHandler<XboxNotificationEventArgs> NotificationReceived;
 
         /// <summary>
         /// TODO: description
@@ -84,12 +88,22 @@ namespace ViridiX.Linguist
         public XboxProcess Process { get; private set; }
 
         /// <summary>
+        /// TODO: description
+        /// </summary>
+        public XboxDebugMonitor DebugMonitor { get; private set; }
+
+        /// <summary>
+        /// TODO: description
+        /// </summary>
+        public XboxFileSystem FileSystem { get; private set; }
+
+        /// <summary>
         /// Constructs the Xbox class.
         /// </summary>
         /// <param name="logger"></param>
         public Xbox(ILogger logger = null)
         {
-            _logger = logger;
+            Logger = logger;
 
             // TODO: likely need a better way to handle this
             Task.Factory.StartNew(NotificationProcessingThread);
@@ -108,12 +122,14 @@ namespace ViridiX.Linguist
         /// </summary>
         private void Initialize()
         {
-            Memory = new XboxMemory(this, _logger);
-            Kernel = new XboxKernel(this, _logger);
-            System = new XboxSystem(this, _logger);
-            Process = new XboxProcess(this, _logger);
+            Memory = new XboxMemory(this);
+            Kernel = new XboxKernel(this);
+            System = new XboxSystem(this);
+            Process = new XboxProcess(this);
+            DebugMonitor = new XboxDebugMonitor(this);
+            FileSystem = new XboxFileSystem(this);
 
-            _logger?.Info("All Xbox subsystems have been successfully initialized");
+            Logger?.Info("All Xbox subsystems have been successfully initialized");
         }
 
         /// <summary>
@@ -124,11 +140,11 @@ namespace ViridiX.Linguist
         public void Connect(IPAddress ip, XboxConnectionOptions options = XboxConnectionOptions.PerformanceMode)
         {
             Disconnect();
-            CommandSession = new XboxConnection(_logger);
+            CommandSession = new XboxConnection(Logger);
             CommandSession.Open(ip, options);
             PreviousConnectionAddress = CommandSession.Ip;
             PreviousConnectionOptions = CommandSession.Options;
-            NotificationSession = new XboxConnection(_logger);
+            NotificationSession = new XboxConnection(Logger);
             NotificationSession.Open(ip, XboxConnectionOptions.NotificationSession);
             Initialize();
         }
@@ -138,9 +154,13 @@ namespace ViridiX.Linguist
         /// </summary>
         public void Disconnect()
         {
-            // TODO: dispose subsystems before disconnecting
             Memory?.Dispose();
             Memory = null;
+            Kernel = null;
+            System = null;
+            Process = null;
+            DebugMonitor = null;
+            FileSystem = null;
 
             CommandSession?.Dispose();
             CommandSession = null;
@@ -209,7 +229,7 @@ namespace ViridiX.Linguist
                 if (notification == null) continue;
 
                 // save for later
-                _logger?.Debug($"Notification received: {notification}");
+                Logger?.Debug($"Notification received: {notification}");
                 NotificationHistory.Enqueue(notification);
 
                 // start dequeuing old entries if greater than max history count
@@ -220,7 +240,7 @@ namespace ViridiX.Linguist
                 }
 
                 // inform any subscribers
-                NotificationReceived?.Invoke(this, new NotificationEventArgs(notification));
+                NotificationReceived?.Invoke(this, new XboxNotificationEventArgs(notification));
             }
         }
 

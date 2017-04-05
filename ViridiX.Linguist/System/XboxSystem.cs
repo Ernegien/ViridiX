@@ -77,14 +77,13 @@ namespace ViridiX.Linguist.System
         /// TODO: description
         /// </summary>
         /// <param name="xbox"></param>
-        /// <param name="logger"></param>
-        public XboxSystem(Xbox xbox, ILogger logger)
+        public XboxSystem(Xbox xbox)
         {
             if (xbox == null)
                 throw new ArgumentNullException(nameof(xbox));
 
             _xbox = xbox;
-            _logger = logger;
+            _logger = xbox.Logger;
 
             _logger?.Info("XboxSystem subsystem initialized");
         }

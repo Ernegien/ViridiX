@@ -49,6 +49,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AssemblyGlobals.cs" />
+    <Compile Include="XboxDebugMonitorTests.cs" />
+    <Compile Include="XboxFileSystemTests.cs" />
     <Compile Include="XboxKernelTests.cs" />
     <Compile Include="XboxMemoryStreamTests.cs" />
     <Compile Include="XboxMemoryTests.cs" />

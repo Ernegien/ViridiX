@@ -98,14 +98,13 @@ namespace ViridiX.Linguist.Memory
         /// TODO: description
         /// </summary>
         /// <param name="xbox"></param>
-        /// <param name="logger"></param>
-        public XboxMemoryStream(Xbox xbox, ILogger logger = null)
+        public XboxMemoryStream(Xbox xbox)
         {
             if (xbox == null)
                 throw new ArgumentNullException(nameof(xbox));
 
             _xbox = xbox;
-            _logger = logger;
+            _logger = xbox.Logger;
 
             Position = XbeHeaderAddress;    // start at a valid memory address
             ProtectedMode = _xbox.CommandSession.Options.HasFlag(XboxConnectionOptions.ProtectedMode);

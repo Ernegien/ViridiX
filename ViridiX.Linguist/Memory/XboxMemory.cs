@@ -40,15 +40,14 @@ namespace ViridiX.Linguist.Memory
         /// TODO: description
         /// </summary>
         /// <param name="xbox"></param>
-        /// <param name="logger"></param>
-        public XboxMemory(Xbox xbox, ILogger logger = null)
+        public XboxMemory(Xbox xbox)
         {
             if (xbox == null)
                 throw new ArgumentNullException(nameof(xbox));
 
             _xbox = xbox;
-            _logger = logger;
-            Stream = new XboxMemoryStream(xbox, logger);
+            _logger = xbox.Logger;
+            Stream = new XboxMemoryStream(xbox);
             _reader = new BinaryReader(Stream);
             _writer = new BinaryWriter(Stream);
 
@@ -64,9 +63,8 @@ namespace ViridiX.Linguist.Memory
             {
                 _xbox.CommandSession.SendCommandStrict("walkmem");
                 List<XboxMemoryRegion> regions = new List<XboxMemoryRegion>();
-                List<string> regionInfo = _xbox.CommandSession.ReceiveLines();
 
-                foreach (var region in regionInfo)
+                foreach (var region in _xbox.CommandSession.ReceiveLines())
                 {
                     var info = region.ParseXboxResponseLine();
                     regions.Add(new XboxMemoryRegion((long)info["base"], (int)(long)info["size"], (XboxMemoryFlags)(long)info["protect"]));

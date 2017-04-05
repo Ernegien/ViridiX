@@ -5,7 +5,7 @@ namespace ViridiX.Linguist.Network
     /// <summary>
     /// TODO: description
     /// </summary>
-    public class NotificationEventArgs : EventArgs
+    public class XboxNotificationEventArgs : EventArgs
     {
         /// <summary>
         /// TODO: description
@@ -16,7 +16,7 @@ namespace ViridiX.Linguist.Network
         /// TODO: description
         /// </summary>
         /// <param name="message"></param>
-        public NotificationEventArgs(string message)
+        public XboxNotificationEventArgs(string message)
         {
             Message = message;
         }

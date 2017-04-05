@@ -42,6 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Debug\XboxDebugMonitor.cs" />
+    <Compile Include="FileSystem\XboxFileInformation.cs" />
+    <Compile Include="FileSystem\XboxFileMode.cs" />
+    <Compile Include="FileSystem\XboxFileStream.cs" />
+    <Compile Include="FileSystem\XboxFileSystem.cs" />
     <Compile Include="Kernel\XboxKernel.cs" />
     <Compile Include="Kernel\XboxKernelExports.cs" />
     <Compile Include="Memory\XboxMemory.cs" />
@@ -49,7 +54,7 @@
     <Compile Include="Memory\XboxMemoryRegion.cs" />
     <Compile Include="Memory\XboxMemoryStatistics.cs" />
     <Compile Include="Memory\XboxMemoryStream.cs" />
-    <Compile Include="Network\NotificationEventArgs.cs" />
+    <Compile Include="Network\XboxNotificationEventArgs.cs" />
     <Compile Include="Network\XboxCommandResponse.cs" />
     <Compile Include="Network\XboxConnection.cs" />
     <Compile Include="Network\XboxConnectionInformation.cs" />

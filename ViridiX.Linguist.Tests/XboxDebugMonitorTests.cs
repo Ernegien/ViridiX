@@ -4,7 +4,7 @@ using ViridiX.Mason.Logging;
 namespace ViridiX.Linguist.Tests
 {
     [TestClass]
-    public class XboxProcessTests
+    public class XboxDebugMonitorTests
     {
         private Xbox _xbox;
 
@@ -23,13 +23,10 @@ namespace ViridiX.Linguist.Tests
         }
 
         [TestMethod]
-        public void ModuleTest()
+        public void InfoTest()
         {
-            var modules = _xbox.Process.Modules;
-            Assert.IsNotNull(_xbox.Process.GetModule("xboxkrnl.exe"));
-            Assert.IsNotNull(_xbox.Process.GetModule("xbdm.dll"));
-            Assert.IsNull(_xbox.Process.GetModule("thisbetternotexist.dll"));
-            // TODO: more
+            var data = _xbox.DebugMonitor.Data;
+            var version = _xbox.DebugMonitor.Version;
         }
     }
 }

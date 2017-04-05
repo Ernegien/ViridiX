@@ -59,12 +59,14 @@
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\DateExtensions.cs" />
+    <Compile Include="Extensions\TcpClientExtensions.cs" />
     <Compile Include="Logging\ILogger.cs" />
     <Compile Include="Logging\LoggerBase.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\SeriLogger.cs" />
     <Compile Include="Network\BlockingNetworkStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\TemporaryPropertyAssignment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

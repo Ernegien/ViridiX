@@ -297,8 +297,7 @@ namespace ViridiX.Linguist.Network
         {
             StringBuilder text = new StringBuilder();
 
-            List<string> lines = ReceiveLines();
-            foreach (string line in lines)
+            foreach (string line in ReceiveLines())
             {
                 text.AppendLine(line);
             }
