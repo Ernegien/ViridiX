@@ -63,6 +63,7 @@
     <Compile Include="Process\XboxModule.cs" />
     <Compile Include="Process\XboxModuleSection.cs" />
     <Compile Include="Process\XboxProcess.cs" />
+    <Compile Include="Process\XboxThread.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\XboxHardwareFlags.cs" />
     <Compile Include="System\XboxHardwareInformation.cs" />

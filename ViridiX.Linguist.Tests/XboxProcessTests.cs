@@ -31,5 +31,12 @@ namespace ViridiX.Linguist.Tests
             Assert.IsNull(_xbox.Process.GetModule("thisbetternotexist.dll"));
             // TODO: more
         }
+
+        [TestMethod]
+        public void ThreadTest()
+        {
+            var threads = _xbox.Process.Threads;
+            // TODO: more
+        }
     }
 }

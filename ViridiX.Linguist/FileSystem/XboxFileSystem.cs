@@ -23,7 +23,7 @@ namespace ViridiX.Linguist.FileSystem
         /// <summary>
         /// Account for the occasional hard drive slowness by increasing this value.
         /// </summary>
-        public int ReceiveTimeoutDelay { get; set; } = 1000;
+        public int ReceiveTimeoutDelay { get; set; } = 3000;
 
         /// <summary>
         /// Initializes the Xbox file subsystem.
