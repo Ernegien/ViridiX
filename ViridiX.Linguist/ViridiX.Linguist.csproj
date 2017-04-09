@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debug\XboxDebugMonitor.cs" />
+    <Compile Include="Process\XboxDebugMonitor.cs" />
     <Compile Include="FileSystem\XboxFileInformation.cs" />
     <Compile Include="FileSystem\XboxFileMode.cs" />
     <Compile Include="FileSystem\XboxFileStream.cs" />

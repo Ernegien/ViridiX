@@ -121,12 +121,11 @@ namespace ViridiX.Mason.Extensions
                     if (value is byte[])
                     {
                         writer.Write(value as byte[]);
+                        break;
                     }
 
                     throw new InvalidCastException();
             }
         }
-
-
     }
 }

@@ -8,7 +8,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ViridiX.Linguist.Debug;
 using ViridiX.Linguist.FileSystem;
 using ViridiX.Linguist.Kernel;
 using ViridiX.Linguist.Memory;
