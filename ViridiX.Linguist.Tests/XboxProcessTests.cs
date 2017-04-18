@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ViridiX.Linguist.System;
 using ViridiX.Mason.Logging;
 
 namespace ViridiX.Linguist.Tests
@@ -37,6 +38,15 @@ namespace ViridiX.Linguist.Tests
         {
             var threads = _xbox.Process.Threads;
             // TODO: more
+        }
+
+        [TestMethod]
+        public void CallTest()
+        {
+            var status = _xbox.System.LinkStatus;
+            Assert.IsTrue(status.HasFlag(XboxLinkStatus.Active));
+            Assert.IsTrue(status.HasFlag(XboxLinkStatus.FastEthernet));
+            Assert.IsTrue(status.HasFlag(XboxLinkStatus.FullDuplex));
         }
     }
 }

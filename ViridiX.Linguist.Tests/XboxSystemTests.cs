@@ -32,6 +32,8 @@ namespace ViridiX.Linguist.Tests
             Assert.AreEqual(_xbox.System.Name, testName);
             _xbox.System.Name = originalName;
             Assert.AreEqual(_xbox.System.Name, originalName);
+
+            // TODO: max length of 255
         }
 
         [TestMethod]

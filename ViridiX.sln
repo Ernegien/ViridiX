@@ -7,10 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViridiX.Mason", "ViridiX.Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViridiX.Mason.Tests", "ViridiX.Mason.Tests\ViridiX.Mason.Tests.csproj", "{9DC3A5E8-9C7D-445F-A07E-A98A1EB0D528}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViridiX.Translator", "ViridiX.Translator\ViridiX.Translator.csproj", "{8B634B6E-1D9E-4426-8590-C4189CC770DD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViridiX.Translator.Tests", "ViridiX.Translator.Tests\ViridiX.Translator.Tests.csproj", "{5003AD73-5843-4484-A879-034F47A23C7A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViridiX.Linguist", "ViridiX.Linguist\ViridiX.Linguist.csproj", "{E5CA613F-4B11-4B42-B0DF-B493E06B02B4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViridiX.Linguist.Tests", "ViridiX.Linguist.Tests\ViridiX.Linguist.Tests.csproj", "{23164790-0FA5-46A2-A782-FA62E5C37EF8}"
@@ -33,14 +29,6 @@ Global
 		{9DC3A5E8-9C7D-445F-A07E-A98A1EB0D528}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC3A5E8-9C7D-445F-A07E-A98A1EB0D528}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DC3A5E8-9C7D-445F-A07E-A98A1EB0D528}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B634B6E-1D9E-4426-8590-C4189CC770DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B634B6E-1D9E-4426-8590-C4189CC770DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B634B6E-1D9E-4426-8590-C4189CC770DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B634B6E-1D9E-4426-8590-C4189CC770DD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5003AD73-5843-4484-A879-034F47A23C7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5003AD73-5843-4484-A879-034F47A23C7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5003AD73-5843-4484-A879-034F47A23C7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5003AD73-5843-4484-A879-034F47A23C7A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5CA613F-4B11-4B42-B0DF-B493E06B02B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5CA613F-4B11-4B42-B0DF-B493E06B02B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5CA613F-4B11-4B42-B0DF-B493E06B02B4}.Release|Any CPU.ActiveCfg = Release|Any CPU

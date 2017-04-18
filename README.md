@@ -7,7 +7,6 @@ ViridiX is a collection of libraries and applications designed to interface with
 The solution's project names are all loosely artisan-based, currently composed of the following:
 
   - Mason - Common core library; the basic building blocks.
-  - Translator - Assembler/disassembler to be used for remote code injection.
   - Linguist - The main communication library and xbdm.dll replacement.
   - Explorer - An Xbox Neighborhood replacement compatible with the latest Windows versions.
   - Ventriloquist - Provides the ability to remotely control and view an Xbox.

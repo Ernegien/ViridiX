@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using ViridiX.Mason.Extensions;
 using ViridiX.Mason.Logging;
 
@@ -38,7 +39,9 @@ namespace ViridiX.Linguist.Process
                         Size = (int) (long) moduleInfo["size"],
                         Checksum = (long) moduleInfo["check"],
                         TimeStamp = ((long) moduleInfo["timestamp"]).ToDateTimeFromEpochSeconds(),
-                        Sections = new List<XboxModuleSection>()
+                        Sections = new List<XboxModuleSection>(),
+                        HasTls = moduleResponse.Contains("tls"),
+                        IsXbe =  moduleResponse.Contains("xbe")
                     };
  
                     _xbox.CommandSession.SendCommandStrict("modsections name=\"{0}\"", module.Name);
@@ -123,6 +126,57 @@ namespace ViridiX.Linguist.Process
         public XboxModule GetModule(string name)
         {
             return _xbox.Process.Modules.FirstOrDefault(module => module.Name.Equals(name));
+        }
+
+        /// <summary>
+        /// Gets an xbox module and section by name.
+        /// </summary>
+        /// <param name="moduleName"></param>
+        /// <param name="sectionName"></param>
+        /// <returns></returns>
+        public XboxModuleSection GetModuleSection(string moduleName, string sectionName)
+        {
+            return GetModule(moduleName)?.GetSection(sectionName);
+        }
+        
+        /// <summary>
+        /// Calls an Xbox function.
+        /// </summary>
+        /// <param name="address">The function address.</param>
+        /// <param name="context">Fastcall register context.</param>
+        /// <param name="args">The function arguments.</param>
+        /// <returns>Returns an object that unboxes eax by default, but allows for reading st0 for floating-point return values.</returns>
+        public XboxCallResult Call(long address, XboxCallContext context, params object[] args)
+        {
+            // TODO: implement call context
+            if (context != null)
+            {
+                throw new NotImplementedException();
+            }
+
+            // injected script pushes arguments in reverse order for simplicity, this corrects that
+            var reversedArgs = args.Reverse().ToArray();
+
+            StringBuilder command = new StringBuilder();
+            command.AppendFormat("funccall addr={0} ", address);
+            for (int i = 0; i < reversedArgs.Length; i++)
+            {
+                command.AppendFormat("arg{0}={1} ", i, Convert.ToUInt32(reversedArgs[i]));
+            }
+
+            var returnValues = _xbox.CommandSession.SendCommandStrict(command.ToString()).Message.ParseXboxResponseLine();
+            return new XboxCallResult((long)returnValues["eax"], (long)returnValues["st0"]);
+        }
+
+        /// <summary>
+        /// Calls an Xbox function.
+        /// </summary>
+        /// <param name="address">The function address.</param>
+        /// <param name="args">The function arguments.</param>
+        /// <returns>Returns an object that unboxes eax by default, but allows for reading st0 for floating-point return values.</returns>
+        public XboxCallResult Call(long address, params object[] args)
+        {
+            return Call(address, null, args);
         }
     }
 }

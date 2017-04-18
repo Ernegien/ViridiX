@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace ViridiX.Linguist.Process
 {
@@ -39,5 +40,25 @@ namespace ViridiX.Linguist.Process
         /// Sections contained within the module.
         /// </summary>
         public List<XboxModuleSection> Sections;
+
+        /// <summary>
+        /// Indicates whether or not the module uses TLS.
+        /// </summary>
+        public bool HasTls;
+
+        /// <summary>
+        /// Indicates whether or not the module is an Xbox executable.
+        /// </summary>
+        public bool IsXbe;
+
+        /// <summary>
+        /// Gets an Xbox module section by name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public XboxModuleSection GetSection(string name)
+        {
+            return Sections.FirstOrDefault(section => section.Name.Equals(name));
+        }
     }
 }

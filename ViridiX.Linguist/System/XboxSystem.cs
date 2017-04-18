@@ -74,6 +74,11 @@ namespace ViridiX.Linguist.System
         }
 
         /// <summary>
+        /// Retrieves the current network link status.
+        /// </summary>
+        public XboxLinkStatus LinkStatus => (XboxLinkStatus)(long)_xbox.Process.Call(_xbox.Kernel.Exports.PhyGetLinkState, 0);
+
+        /// <summary>
         /// TODO: description
         /// </summary>
         /// <param name="xbox"></param>
