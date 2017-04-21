@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ViridiX.Linguist.Process;
 using ViridiX.Linguist.System;
 using ViridiX.Mason.Logging;
 
@@ -43,10 +45,16 @@ namespace ViridiX.Linguist.Tests
         [TestMethod]
         public void CallTest()
         {
-            var status = _xbox.System.LinkStatus;
+            var status = (XboxLinkStatus)(long)_xbox.Process.Call(_xbox.Kernel.Exports.PhyGetLinkState, 0);
             Assert.IsTrue(status.HasFlag(XboxLinkStatus.Active));
             Assert.IsTrue(status.HasFlag(XboxLinkStatus.FastEthernet));
             Assert.IsTrue(status.HasFlag(XboxLinkStatus.FullDuplex));
+
+            try
+            {
+                _xbox.Process.Call(0, new XboxCallContext());
+            }
+            catch (NotImplementedException) { }
         }
     }
 }

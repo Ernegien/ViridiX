@@ -197,7 +197,7 @@ namespace ViridiX.Linguist.Process
                 // function prolog
                 "push ebp",
                 "mov ebp, esp",
-                "sub esp, 0Ch",
+                "sub esp, 10h",
                 "push edi",
 
                 // check for thread id
@@ -219,9 +219,18 @@ namespace ViridiX.Linguist.Process
                 // thread argument doesn't exist, must be an immediate call instead
                 "immediateCall:",
 
-                // zero out local variable to hold constructed argument name
+                // get the call address
+                "lea eax, [ebp-8]",         // argument value address
+                "push eax",
+                "push strAddr",
+                "push dword [ebp+8]",       // command
+                $"mov eax, {FGetDwParam}",
+                "call eax",
+                "test eax, eax",
+                "jz lblError",
+
+                // ensure constructed argument name is null-terminated
                 "mov dword [ebp-0Ch], 0",
-                "mov dword [ebp-8h], 0",
 
                 // push arguments (leave it up to caller to reverse argument order and supply the correct amount)
                 "xor edi, edi",             // argument counter
@@ -230,7 +239,7 @@ namespace ViridiX.Linguist.Process
                     // get argument name
                     "push edi",             // argument index
                     "push argNameFormat",   // format string address
-                    "lea eax, [ebp-0Ch]",   // argument name address
+                    "lea eax, [ebp-10h]",   // argument name address
                     "push eax",
                     $"mov eax, {_xbox.Kernel.Exports.sprintf}",
                     "call eax",
@@ -239,7 +248,7 @@ namespace ViridiX.Linguist.Process
                     // check if it's included in the command
                     "lea eax, [ebp-4]",     // argument value address
                     "push eax",
-                    "lea eax, [ebp-0Ch]",   // argument name address
+                    "lea eax, [ebp-10h]",   // argument name address
                     "push eax",
                     "push dword [ebp+8]",   // command
                     $"mov eax, {FGetDwParam}",
@@ -255,21 +264,11 @@ namespace ViridiX.Linguist.Process
                     "jmp nextArg",
 
                 "noMoreArgs:",
-              
-                // get the call address
-                "lea eax, [ebp-4]",         // argument value address
-                "push eax",
-                "push strAddr",
-                "push dword [ebp+8]",       // command
-                $"mov eax, {FGetDwParam}",
-                "call eax",
-                "test eax, eax",
-                "jz lblError",
 
                 // TODO: set fastcall register context (ecx, edx, xmm0-xmm2)
 
                 // perform the call
-                "call dword [ebp-4]",
+                "call dword [ebp-8]",
 
                 // print response message
                 "fst dword [ebp-4]",        
@@ -285,8 +284,6 @@ namespace ViridiX.Linguist.Process
                 "mov eax, 02DB0000h",       // success
                 "jmp lblDone",
                 "lblError:",
-                "shl edi, 2",
-                "add esp, edi",             // remove arguments from the stack since the call wasn't performed
                 "mov eax, 82DB0000h",       // error
                 "lblDone:",
 
