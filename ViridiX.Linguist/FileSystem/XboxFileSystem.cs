@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using ViridiX.Linguist.Network;
 using ViridiX.Mason.Extensions;
 using ViridiX.Mason.Logging;
@@ -24,6 +26,11 @@ namespace ViridiX.Linguist.FileSystem
         /// Account for the occasional hard drive slowness by increasing this value.
         /// </summary>
         public int ReceiveTimeoutDelay { get; set; } = 3000;
+
+        /// <summary>
+        /// The directory used to store temporary files on the Xbox.
+        /// </summary>
+        public static string TempDirectory = @"E:\temp";
 
         /// <summary>
         /// Initializes the Xbox file subsystem.
@@ -186,13 +193,30 @@ namespace ViridiX.Linguist.FileSystem
         }
 
         /// <summary>
-        /// Deletes a directory on the Xbox. Does nothing if the directory doesn't exist.
+        /// Deletes a directory on the Xbox. Throws an exception if the directory isn't empty, unless recursive is specified.
+        /// Does nothing if the directory doesn't exist.
         /// </summary>
         /// <param name="path"></param>
-        public void DeleteDirectory(string path)
+        /// <param name="recursive"></param>
+        public void DeleteDirectory(string path, bool recursive = false)
         {
             using (_xbox.CommandSession.ExtendReceiveTimeout(ReceiveTimeoutDelay))
             {
+                if (recursive && _xbox.FileSystem.FileExists(path))
+                {
+                    foreach (var item in _xbox.FileSystem.GetDirectoryList(path))
+                    {
+                        if (item.Attributes.HasFlag(FileAttributes.Directory))
+                        {
+                            DeleteDirectory(item.FullName, true);
+                        }
+                        else
+                        {
+                            DeleteFile(item.FullName);
+                        }
+                    }
+                }
+
                 XboxCommandResponse response = _xbox.CommandSession.SendCommand("delete name=\"{0}\" dir", path);
                 if (!response.Success && response.Type != XboxCommandResponseType.FileNotFound)
                 {
@@ -208,6 +232,7 @@ namespace ViridiX.Linguist.FileSystem
         /// <returns></returns>
         public bool FileExists(string fileName)
         {
+            // TODO: look into this returning a single-line response OK when getting attributes of a locked file
             using (_xbox.CommandSession.ExtendReceiveTimeout(ReceiveTimeoutDelay))
             {
                 XboxCommandResponse response = _xbox.CommandSession.SendCommand("getfileattributes name=\"{0}\"", fileName);
@@ -268,6 +293,7 @@ namespace ViridiX.Linguist.FileSystem
             GetDriveSizeInformation(driveLabel, out freeBytes, out driveSize, out totalFreeBytes);
             return driveSize;
         }
+
         /// <summary>
         /// Renames or moves a file on the Xbox.
         /// </summary>
@@ -419,6 +445,95 @@ namespace ViridiX.Linguist.FileSystem
         public long GetFileSize(string fileName)
         {
             return GetFileInformation(fileName).Size;
+        }
+
+        /// <summary>
+        /// Writes a file to the Xbox from the specified input stream.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="input"></param>
+        public void WriteFile(string fileName, Stream input)
+        {
+            _xbox.CommandSession.SendCommandStrict("sendfile name=\"{0}\" length={1}", fileName, input.Length);
+            input.CopyTo(_xbox.CommandSession.Stream);
+            if (!_xbox.CommandSession.ReceiveStatusResponse().Success)
+            {
+                throw new DataException();
+            }
+        }
+
+        /// <summary>
+        /// Writes a file to the Xbox.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="data"></param>
+        public void WriteFile(string fileName, byte[] data)
+        {
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                WriteFile(fileName, ms);
+            }
+        }
+
+        /// <summary>
+        /// Uploads a file to the Xbox.
+        /// </summary>
+        /// <param name="localFileName"></param>
+        /// <param name="xboxFileName"></param>
+        public void UploadFile(string localFileName, string xboxFileName)
+        {
+            using (FileStream fs = new FileStream(localFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                WriteFile(xboxFileName, fs);
+            }
+        }
+
+        /// <summary>
+        /// Reads a file from the Xbox to the specified output stream.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="output"></param>
+        public void ReadFile(string fileName, Stream output)
+        {
+            _xbox.CommandSession.SendCommandStrict("getfile name=\"{0}\"", fileName);
+            long length = _xbox.CommandSession.Reader.ReadUInt32();
+            _xbox.CommandSession.Stream.CopyTo(output, length);
+        }
+
+        /// <summary>
+        /// Reads a file from the Xbox.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public byte[] ReadFile(string fileName)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                ReadFile(fileName, ms);
+                return ms.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Downloads a file from the Xbox.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="localFileName"></param>
+        public void DownloadFile(string fileName, string localFileName)
+        {
+            using (FileStream fs = new FileStream(localFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                ReadFile(fileName, fs);
+            }
+        }
+
+        /// <summary>
+        /// Generates a temporary Xbox file name.
+        /// </summary>
+        /// <returns></returns>
+        public static string GetTempFileName()
+        {
+            return Path.Combine(TempDirectory, $"{DateTime.Now.Ticks}.tmp");
         }
     }
 }

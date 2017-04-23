@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Text;
 
 namespace ViridiX.Mason.Extensions
@@ -34,6 +35,32 @@ namespace ViridiX.Mason.Extensions
             }
 
             return hexString.ToString();
+        }
+
+        /// <summary>
+        /// Fills the specified byte array with random data.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Returns a reference of itself.</returns>
+        public static byte[] FillRandom(this byte[] data)
+        {
+            Random rng = new Random(data.GetHashCode());
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = (byte)rng.Next(byte.MaxValue);
+            }
+            return data;
+        }
+
+        /// <summary>
+        /// Checks if the underlying data is equal.
+        /// </summary>
+        /// <param name="sourceData"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static bool IsEqual(this byte[] sourceData, byte[] data)
+        {
+            return StructuralComparisons.StructuralEqualityComparer.Equals(sourceData, data);
         }
     }
 }

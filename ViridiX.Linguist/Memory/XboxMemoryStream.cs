@@ -21,9 +21,6 @@ namespace ViridiX.Linguist.Memory
         private readonly ILogger _logger;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private const int BufferSize = 128 * 1024;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private const long XbeHeaderAddress = 0x10000;
 
         #endregion
@@ -139,17 +136,7 @@ namespace ViridiX.Linguist.Memory
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int bytesRead = 0;
-            while (bytesRead < count)
-            {
-                int bytesToRead = Math.Min(BufferSize, count - bytesRead);
-                ReadBytes(Position, buffer, offset + bytesRead, bytesToRead);
-
-                bytesRead += bytesToRead;
-                Position += bytesToRead;
-            }
-
-            return bytesRead;   // bytes returned should always be equal to count (unless a crash), using the accumulator for consistency anyways
+            return ReadBytes(Position, buffer, offset, count);
         }
 
         /// <summary>
@@ -160,15 +147,7 @@ namespace ViridiX.Linguist.Memory
         /// <param name="count"></param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            int bytesWritten = 0;
-            while (bytesWritten < count)
-            {
-                int bytesToWrite = Math.Min(BufferSize, count - bytesWritten);
-                WriteBytes(Position, buffer, offset + bytesWritten, bytesToWrite);
-
-                bytesWritten += bytesToWrite;
-                Position += bytesToWrite;
-            }
+            WriteBytes(Position, buffer, offset, count);
         }
 
         /// <summary>
@@ -178,7 +157,7 @@ namespace ViridiX.Linguist.Memory
         /// <param name="buffer"></param>
         /// <param name="bufferOffset"></param>
         /// <param name="count"></param>
-        private void ReadBytes(long address, byte[] buffer, int bufferOffset, int count)
+        private int ReadBytes(long address, byte[] buffer, int bufferOffset, int count)
         {
             if (ProtectedMode && !_xbox.Memory.IsValidAddressRange(address, address + count))
             {
@@ -187,7 +166,7 @@ namespace ViridiX.Linguist.Memory
 
             // TODO: protected mode getmem using patched xbdm.dll
             _xbox.CommandSession.SendCommandStrict("getmem2 addr={0} length={1}", address.ToHexString(), count);
-            _xbox.CommandSession.Stream.Read(buffer, bufferOffset, count);
+            return _xbox.CommandSession.Stream.Read(buffer, bufferOffset, count);
         }
 
         /// <summary>

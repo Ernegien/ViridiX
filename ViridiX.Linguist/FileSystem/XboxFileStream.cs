@@ -14,43 +14,9 @@ namespace ViridiX.Linguist.FileSystem
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private readonly Xbox _xbox;
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private int _bufferSize = 128 * 1024;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private const int MinBufferSize = 4 * 1024;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private const int MaxBufferSize = 1024 * 1024;
-
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets or sets the file stream buffer size.
-        /// </summary>
-        public int BufferSize
-        {
-            get
-            {
-                return _bufferSize;
-            }
-            set
-            {
-                // clamp the value within the allowable range
-                _bufferSize = Math.Min(Math.Max(value, MinBufferSize), MaxBufferSize);
-
-                // extend the underlying connection buffer sizes if necessary
-                if (value > _xbox.CommandSession.SendBufferSize || value > _xbox.CommandSession.ReceiveBufferSize)
-                {
-                    _xbox.CommandSession.SendBufferSize = value;
-                    _xbox.CommandSession.ReceiveBufferSize = value;
-                }
-
-                _bufferSize = value;
-            }
-        }
 
         /// <summary>
         /// The file name.
@@ -167,25 +133,7 @@ namespace ViridiX.Linguist.FileSystem
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            // make sure we're not going to overflow the connection buffer
-            if (BufferSize > _xbox.CommandSession.ReceiveBufferSize)
-                throw new OverflowException("File stream buffer is larger than the underlying connection receive buffer.");
-
-            int totalRead = 0;
-            while (totalRead < count)
-            {
-                int bytesToRead = Math.Min(BufferSize, count - totalRead);
-                int bytesRead = _xbox.FileSystem.ReadFilePartial(Name, Position, buffer, offset + totalRead, bytesToRead);
-                totalRead += bytesRead;
-                Position += bytesRead;
-
-                if (bytesRead == 0 || bytesRead < bytesToRead)
-                {
-                    return totalRead;
-                }
-            }
-
-            return totalRead;
+            return _xbox.FileSystem.ReadFilePartial(Name, Position, buffer, offset, count); ;
         }
 
         /// <summary>
@@ -196,18 +144,7 @@ namespace ViridiX.Linguist.FileSystem
         /// <param name="count"></param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            // make sure we're not going to overflow the connection buffer
-            if (BufferSize > _xbox.CommandSession.SendBufferSize)
-                throw new OverflowException("File stream buffer is larger than the underlying connection send buffer.");
-
-            int bytesWritten = 0;
-            while (bytesWritten < count)
-            {
-                int bytesToWrite = Math.Min(BufferSize, count - bytesWritten);
-                _xbox.FileSystem.WriteFilePartial(Name, Position, buffer, offset + bytesWritten, bytesToWrite);
-                bytesWritten += bytesToWrite;
-                Position += bytesToWrite;
-            }
+            _xbox.FileSystem.WriteFilePartial(Name, Position, buffer, offset, count);
         }
 
         #endregion

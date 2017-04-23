@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ViridiX.Linguist.FileSystem;
+using ViridiX.Mason.Extensions;
 using ViridiX.Mason.Logging;
 
 namespace ViridiX.Linguist.Tests
@@ -13,18 +13,20 @@ namespace ViridiX.Linguist.Tests
     {
         private Xbox _xbox;
 
-        private const string TestDirectory = @"E:\tests";
-
         [TestInitialize]
         public void Initialize()
         {
             _xbox = new Xbox(AssemblyGlobals.Logger);
             _xbox.Connect(AssemblyGlobals.TestXbox.Ip);
+            _xbox.CommandSession.SendBufferSize = 1024;
+            _xbox.CommandSession.ReceiveBufferSize = 1024;
+            _xbox.FileSystem.CreateDirectory(XboxFileSystem.TempDirectory);
         }
 
         [TestCleanup]
         public void Cleanup()
         {
+            _xbox.FileSystem.DeleteDirectory(XboxFileSystem.TempDirectory, true);
             _xbox?.Dispose();
             AssemblyGlobals.Logger.Level = LogLevel.Trace;
         }
@@ -65,27 +67,24 @@ namespace ViridiX.Linguist.Tests
         }
 
         [TestMethod]
-        public void CreateDeleteDirectory()
+        public void CreateDeleteDirectoryTest()
         {
-            // make sure the test directory exists
-            _xbox.FileSystem.CreateDirectory(TestDirectory);
-            _xbox.FileSystem.CreateDirectory(TestDirectory);    // test double creation
+            // test double creation
+            _xbox.FileSystem.CreateDirectory(XboxFileSystem.TempDirectory);
+             
+            // test existence and deletion
+            Assert.IsTrue(_xbox.FileSystem.FileExists(XboxFileSystem.TempDirectory));
+            _xbox.FileSystem.DeleteDirectory(XboxFileSystem.TempDirectory);
+            Assert.IsFalse(_xbox.FileSystem.FileExists(XboxFileSystem.TempDirectory));
 
-            string testDirectory = $@"E:\tests\{DateTime.Now.Ticks}";
-            _xbox.FileSystem.CreateDirectory(testDirectory);
-            Assert.IsTrue(_xbox.FileSystem.FileExists(testDirectory));
-            _xbox.FileSystem.DeleteDirectory(testDirectory);
-            Assert.IsFalse(_xbox.FileSystem.FileExists(testDirectory));
-            _xbox.FileSystem.DeleteDirectory(testDirectory);    // test double deletion
+            // test double deletion
+            _xbox.FileSystem.DeleteDirectory(XboxFileSystem.TempDirectory);
         }
 
         [TestMethod]
-        public void CreateDeleteFile()
+        public void CreateDeleteFileTest()
         {
-            // make sure the test directory exists
-            _xbox.FileSystem.CreateDirectory(TestDirectory);
-
-            string testFile = $@"E:\tests\{DateTime.Now.Ticks}.tmp";
+            string testFile = Path.Combine(XboxFileSystem.TempDirectory, $"{DateTime.Now.Ticks}.tmp");
 
             // test successful file creation
             _xbox.FileSystem.CreateFile(testFile, XboxFileMode.CreateNew);
@@ -130,22 +129,36 @@ namespace ViridiX.Linguist.Tests
                 Assert.Fail();
             }
             catch { /* pass */ }
+        }
 
+        [TestMethod]
+        public void BatchDeleteTest()
+        {
+            string testFile = Path.Combine(XboxFileSystem.TempDirectory, $"{DateTime.Now.Ticks}.tmp");
+            _xbox.FileSystem.CreateFile(testFile, XboxFileMode.CreateNew);
 
-            // TODO: more
+            try
+            {
+                _xbox.FileSystem.DeleteDirectory(XboxFileSystem.TempDirectory);
+                Assert.Fail();  // directory not empty
+            }
+            catch { /* pass */ }
+
+            string testDirectory = Path.Combine(XboxFileSystem.TempDirectory, DateTime.Now.Ticks.ToString());
+            _xbox.FileSystem.CreateDirectory(testDirectory);
+            testFile = Path.Combine(testDirectory, $"{DateTime.Now.Ticks}.tmp");
+            _xbox.FileSystem.CreateFile(testFile, XboxFileMode.CreateNew);
+            _xbox.FileSystem.DeleteDirectory(XboxFileSystem.TempDirectory, true);
         }
 
         [TestMethod]
         public void GetFileInformationTest()
         {
-            // make sure the test directory exists
-            _xbox.FileSystem.CreateDirectory(TestDirectory);
-
             XboxFileInformation info = _xbox.FileSystem.GetFileInformation(@"E:\xbdm.ini");
             Assert.IsTrue(info.Attributes == FileAttributes.Normal);
             Assert.IsTrue(info.Size > 0 && info.Size < 0x1000);
 
-            info = _xbox.FileSystem.GetFileInformation(TestDirectory);
+            info = _xbox.FileSystem.GetFileInformation(XboxFileSystem.TempDirectory);
             Assert.IsTrue(info.Attributes == FileAttributes.Directory);
             Assert.IsTrue(info.Size == 0);
         }
@@ -153,32 +166,29 @@ namespace ViridiX.Linguist.Tests
         [TestMethod]
         public void FileStreamTest()
         {
-            // make sure the test directory exists
-            _xbox.FileSystem.CreateDirectory(TestDirectory);
-            
-            byte[] data = new byte[31];
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] = (byte)(i % byte.MaxValue);
-            }
+            byte[] data = new byte[0x10000].FillRandom();
 
-            using (XboxFileStream fs = new XboxFileStream(_xbox, Path.Combine(TestDirectory, $"{DateTime.Now.Ticks}.tmp")))
+            string tempFile = XboxFileSystem.GetTempFileName();
+            using (XboxFileStream fs = new XboxFileStream(_xbox, tempFile))
             {
                 fs.Write(data, 0, data.Length);
-
                 fs.Position = 0;
-
                 byte[] data2 = new byte[data.Length];
                 fs.Read(data2, 0, data2.Length);
-
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(data, data2))
-                {
-                    throw new Exception("File stream inconsistency detected");
-                }
+                Assert.IsTrue(data.IsEqual(data2));
             }
+            _xbox.FileSystem.DeleteFile(tempFile);
         }
 
-        // TODO: more
-
+        [TestMethod]
+        public void SendReceiveFileTest()
+        {
+            string tempFile = XboxFileSystem.GetTempFileName();
+            byte[] data = new byte[0x100000].FillRandom();
+            _xbox.FileSystem.WriteFile(tempFile, data);
+            byte[] data2 = _xbox.FileSystem.ReadFile(tempFile);
+            Assert.IsTrue(data.IsEqual(data2));
+            _xbox.FileSystem.DeleteFile(tempFile);
+        }
     }
 }

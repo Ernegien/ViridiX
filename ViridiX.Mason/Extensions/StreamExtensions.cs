@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -126,6 +127,26 @@ namespace ViridiX.Mason.Extensions
 
                     throw new InvalidCastException();
             }
+        }
+
+        /// <summary>
+        /// Copies stream data of specified count to the destination stream.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
+        /// <param name="count"></param>
+        public static void CopyTo(this Stream source, Stream destination, long count)
+        {
+            long bytesCopied = 0;
+            byte[] buffer = new byte[0x1000];
+
+            do
+            {
+                int bytesToRead = Math.Min((int) (count - bytesCopied), buffer.Length);
+                int bytesRead = source.Read(buffer, 0, bytesToRead);
+                destination.Write(buffer, 0, bytesRead);
+                bytesCopied += bytesRead;
+            } while (bytesCopied < count);
         }
     }
 }
