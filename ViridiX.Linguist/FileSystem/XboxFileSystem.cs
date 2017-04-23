@@ -235,7 +235,6 @@ namespace ViridiX.Linguist.FileSystem
         /// <returns></returns>
         public bool FileExists(string fileName)
         {
-            // TODO: look into this returning a single-line response OK when getting attributes of a locked file
             using (_xbox.CommandSession.ExtendReceiveTimeout(ReceiveTimeoutDelay))
             {
                 XboxCommandResponse response = _xbox.CommandSession.SendCommand("getfileattributes name=\"{0}\"", fileName);
