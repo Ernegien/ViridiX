@@ -200,23 +200,26 @@ namespace ViridiX.Linguist.FileSystem
         /// <param name="recursive"></param>
         public void DeleteDirectory(string path, bool recursive = false)
         {
-            using (_xbox.CommandSession.ExtendReceiveTimeout(ReceiveTimeoutDelay))
+            if (!_xbox.FileSystem.FileExists(path))
+                return;
+
+            if (recursive)
             {
-                if (recursive && _xbox.FileSystem.FileExists(path))
+                foreach (var item in _xbox.FileSystem.GetDirectoryList(path))
                 {
-                    foreach (var item in _xbox.FileSystem.GetDirectoryList(path))
+                    if (item.Attributes.HasFlag(FileAttributes.Directory))
                     {
-                        if (item.Attributes.HasFlag(FileAttributes.Directory))
-                        {
-                            DeleteDirectory(item.FullName, true);
-                        }
-                        else
-                        {
-                            DeleteFile(item.FullName);
-                        }
+                        DeleteDirectory(item.FullName, true);
+                    }
+                    else
+                    {
+                        DeleteFile(item.FullName);
                     }
                 }
+            }
 
+            using (_xbox.CommandSession.ExtendReceiveTimeout(ReceiveTimeoutDelay))
+            {
                 XboxCommandResponse response = _xbox.CommandSession.SendCommand("delete name=\"{0}\" dir", path);
                 if (!response.Success && response.Type != XboxCommandResponseType.FileNotFound)
                 {
