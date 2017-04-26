@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Threading;
 using ViridiX.Linguist.Network;
 using ViridiX.Mason.Extensions;
 using ViridiX.Mason.Logging;
@@ -91,6 +92,34 @@ namespace ViridiX.Linguist.System
             _logger = xbox.Logger;
 
             _logger?.Info("XboxSystem subsystem initialized");
+        }
+
+        /// <summary>
+        /// Sets the Xbox LED state.
+        /// </summary>
+        /// <param name="state1">First LED state.</param>
+        /// <param name="state2">Second LED state.</param>
+        /// <param name="state3">Third LED state.</param>
+        /// <param name="state4">Fourth LED state.</param>
+        public void SetLedState(LedState state1, LedState state2, LedState state3, LedState state4)
+        {
+            byte state = 0;
+            state |= (byte)state1;
+            state |= (byte)((byte)state2 >> 1);
+            state |= (byte)((byte)state3 >> 2);
+            state |= (byte)((byte)state4 >> 3);
+            _xbox.Process.Call(_xbox.Kernel.Exports.HalWriteSMBusValue, SmcDevices.SmBus, SmBusCommand.LedStates, 0, state);
+            _xbox.Process.Call(_xbox.Kernel.Exports.HalWriteSMBusValue, SmcDevices.SmBus, SmBusCommand.LedOverride, 0, LedSubCommand.Custom);
+            Thread.Sleep(10);
+        }
+
+        /// <summary>
+        /// Restores the Xbox LED to its default state.
+        /// </summary>
+        public void RestoreDefaultLedState()
+        {
+            _xbox.Process.Call(_xbox.Kernel.Exports.HalWriteSMBusValue, SmcDevices.SmBus, SmBusCommand.LedOverride, 0, LedSubCommand.Default);
+            Thread.Sleep(10);
         }
     }
 }

@@ -67,6 +67,11 @@ namespace ViridiX.Linguist
         public event EventHandler<XboxNotificationEventArgs> NotificationReceived;
 
         /// <summary>
+        /// An id used to uniquely identify an XboxConnection.
+        /// </summary>
+        public int ConnectionId { get; private set; }
+
+        /// <summary>
         /// TODO: description
         /// </summary>
         public XboxMemory Memory { get; private set; }
@@ -127,7 +132,7 @@ namespace ViridiX.Linguist
             Process = new XboxProcess(this);
             DebugMonitor = new XboxDebugMonitor(this);
             FileSystem = new XboxFileSystem(this);
-
+            ConnectionId = Process.Call(Kernel.Exports.PhyGetLinkState, 0).ConnectionId;
             Logger?.Info("All Xbox subsystems have been successfully initialized");
         }
 
@@ -160,6 +165,7 @@ namespace ViridiX.Linguist
             Process = null;
             DebugMonitor = null;
             FileSystem = null;
+            ConnectionId = 0;
 
             CommandSession?.Dispose();
             CommandSession = null;

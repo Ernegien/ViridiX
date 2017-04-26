@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ViridiX.Linguist.System;
 using ViridiX.Mason.Logging;
 
 namespace ViridiX.Linguist.Tests
@@ -51,6 +52,13 @@ namespace ViridiX.Linguist.Tests
         public void HardwareInfoTest()
         {
             var hardware = _xbox.System.HardwareInfo;
+        }
+
+        [TestMethod]
+        public void LedTest()
+        {
+            _xbox.System.SetLedState(LedState.Off, LedState.Off, LedState.Green, LedState.Off);
+            _xbox.System.RestoreDefaultLedState();
         }
     }
 }

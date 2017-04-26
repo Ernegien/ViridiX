@@ -19,13 +19,20 @@ namespace ViridiX.Linguist.Process
         public float St0 { get; }
 
         /// <summary>
+        /// A value used to uniquely identify a connection.
+        /// </summary>
+        public int ConnectionId { get; }
+
+        /// <summary>
         /// Constructs a call result.
         /// </summary>
         /// <param name="eax"></param>
         /// <param name="st0"></param>
-        public XboxCallResult(long eax, long st0)
+        /// <param name="connectionId"></param>
+        public XboxCallResult(long eax, long st0, long connectionId)
         {
             Eax = eax;
+            ConnectionId = (int)(connectionId & ushort.MaxValue);
 
             byte[] data = new byte[4];
             using (MemoryStream ms = new MemoryStream(data))

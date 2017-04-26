@@ -186,6 +186,7 @@ namespace ViridiX.Linguist.Process
         /// </summary>
         private void EnableRemoteCodeExecution()
         {
+            // TODO: proper class for in-memory representation of this stuff
             const int debugMonitorCustomHeaderSize = 0x40;
             var scriptBuffer = Module.GetSection(".reloc").Base + debugMonitorCustomHeaderSize;
 
@@ -271,6 +272,7 @@ namespace ViridiX.Linguist.Process
                 "call dword [ebp-8]",
 
                 // print response message
+                "push dword [ebp+14h]",     // use pdmcc as connection id
                 "fst dword [ebp-4]",        
                 "push dword [ebp-4]",       // floating-point return value
                 "push eax",                 // integer return value
@@ -278,7 +280,7 @@ namespace ViridiX.Linguist.Process
                 "push dword [ebp+0Ch]",     // response address
                 $"mov eax, {_xbox.Kernel.Exports.sprintf}",
                 "call eax",
-                "add esp, 10h",
+                "add esp, 14h",
 
                 // return codes
                 "mov eax, 02DB0000h",       // success
@@ -296,7 +298,7 @@ namespace ViridiX.Linguist.Process
                 "strAddr db 'addr', 0",
                 "strThread db 'thread', 0",
                 "argNameFormat db 'arg%01d', 0",
-                "returnValuesFormat db 'eax=0x%X st0=0x%X', 0"
+                "returnValuesFormat db 'eax=0x%X st0=0x%X cid=0x%X', 0"
             };
 
             // write the cave

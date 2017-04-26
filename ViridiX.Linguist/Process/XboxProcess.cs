@@ -165,7 +165,7 @@ namespace ViridiX.Linguist.Process
             }
 
             var returnValues = _xbox.CommandSession.SendCommandStrict(command.ToString()).Message.ParseXboxResponseLine();
-            return new XboxCallResult((long)returnValues["eax"], (long)returnValues["st0"]);
+            return new XboxCallResult((long)returnValues["eax"], (long)returnValues["st0"], (long)returnValues["cid"]);
         }
 
         /// <summary>

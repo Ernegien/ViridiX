@@ -46,6 +46,10 @@
   <ItemGroup>
     <Compile Include="Process\XboxCallContext.cs" />
     <Compile Include="Process\XboxCallResult.cs" />
+    <Compile Include="System\LedState.cs" />
+    <Compile Include="System\LedSubCommand.cs" />
+    <Compile Include="System\SmBusCommand.cs" />
+    <Compile Include="System\SmcDevices.cs" />
     <Compile Include="System\XboxLinkStatus.cs" />
     <Compile Include="Process\XboxDebugMonitor.cs" />
     <Compile Include="FileSystem\XboxFileInformation.cs" />
