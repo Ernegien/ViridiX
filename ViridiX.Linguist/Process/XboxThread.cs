@@ -1,4 +1,5 @@
 ﻿using System;
+using ViridiX.Mason.Utilities;
 
 namespace ViridiX.Linguist.Process
 {
@@ -46,5 +47,31 @@ namespace ViridiX.Linguist.Process
         /// TODO: description
         /// </summary>
         public DateTime CreationTime;
-    };
+    }
+
+    public enum ContextFlags : uint
+    {
+        Control = 1,
+        Integer = 2,
+        FloatingPoint = 8,
+
+        Full = (Control | Integer | FloatingPoint),
+    }
+
+    public class ThreadContext
+    {
+        public ContextFlags Flags;
+        public uint Edi;
+        public uint Esi;
+        public uint Ebx;
+        public uint Edx;
+        public uint Ecx;
+        public uint Eax;
+        public uint Ebp;
+        public uint Eip;
+        public uint Esp;
+        public uint EFlags;
+        public uint SegCs;
+        public uint SegSs;
+    }
 }

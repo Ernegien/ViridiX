@@ -136,7 +136,12 @@ namespace ViridiX.Linguist.Memory
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return ReadBytes(Position, buffer, offset, count);
+            // Read data and update stream position.
+            int bytesRead = ReadBytes(this.Position, buffer, offset, count);
+            this.Position += bytesRead;
+
+            // Return the number of bytes read.
+            return bytesRead;
         }
 
         /// <summary>
@@ -147,16 +152,18 @@ namespace ViridiX.Linguist.Memory
         /// <param name="count"></param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            WriteBytes(Position, buffer, offset, count);
+            // Write data and update stream position.
+            this.Position += WriteBytes(this.Position, buffer, offset, count);
         }
 
         /// <summary>
-        /// TODO: description
+        /// Reads memory from the xbox console
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="buffer"></param>
-        /// <param name="bufferOffset"></param>
-        /// <param name="count"></param>
+        /// <param name="address">Address to start reading from</param>
+        /// <param name="buffer">Buffer to hold data read</param>
+        /// <param name="bufferOffset">Offset into <see cref="buffer"/> to start writing at</param>
+        /// <param name="count">Number of bytes to read</param>
+        /// <returns>Number of bytes read</returns>
         private int ReadBytes(long address, byte[] buffer, int bufferOffset, int count)
         {
             if (ProtectedMode && !_xbox.Memory.IsValidAddressRange(address, address + count))
@@ -165,18 +172,31 @@ namespace ViridiX.Linguist.Memory
             }
 
             // TODO: protected mode getmem using patched xbdm.dll
-            _xbox.CommandSession.SendCommandStrict("getmem2 addr={0} length={1}", address.ToHexString(), count);
-            return _xbox.CommandSession.Stream.Read(buffer, bufferOffset, count);
+
+            // Read the data in blocks to support large reads.
+            int bytesRead = 0;
+            do
+            {
+                // Read a full block or the remaining size.
+                int blockSize = Math.Min(1024, count - bytesRead);
+                _xbox.CommandSession.SendCommandStrict("getmem2 addr={0} length={1}", (address + bytesRead).ToHexString(), blockSize);
+                bytesRead += _xbox.CommandSession.Stream.Read(buffer, bufferOffset + bytesRead, blockSize);
+            }
+            while (bytesRead < count);
+
+            // Return the number of bytes read.
+            return bytesRead;
         }
 
         /// <summary>
-        /// TODO: description
+        /// Writes an array of bytes to xbox memory
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="buffer"></param>
-        /// <param name="bufferOffset"></param>
-        /// <param name="count"></param>
-        private void WriteBytes(long address, byte[] buffer, int bufferOffset, int count)
+        /// <param name="address">Address to write data to</param>
+        /// <param name="buffer">Data to be written</param>
+        /// <param name="bufferOffset">Offset into <see cref="buffer"/> to start reading from</param>
+        /// <param name="count">Number of bytes to write</param>
+        /// <returns>Number of bytes written</returns>
+        private int WriteBytes(long address, byte[] buffer, int bufferOffset, int count)
         {
             if (ProtectedMode && !_xbox.Memory.IsValidAddressRange(address, address + count))
             {
@@ -193,6 +213,9 @@ namespace ViridiX.Linguist.Memory
                 _xbox.CommandSession.SendCommandStrict("setmem addr={0} data={1}", (address + totalWritten).ToHexString(), hexData);
                 totalWritten += bytesToWrite;
             }
+
+            // Return the number of bytes written.
+            return totalWritten;
         }
 
         #endregion

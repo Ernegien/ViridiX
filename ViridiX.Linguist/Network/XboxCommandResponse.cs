@@ -1,4 +1,8 @@
 ﻿
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace ViridiX.Linguist.Network
 {
     /// <summary>

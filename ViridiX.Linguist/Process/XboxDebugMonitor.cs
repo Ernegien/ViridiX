@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using ViridiX.Linguist.Network;
 using ViridiX.Mason.Collections;
 using ViridiX.Mason.Logging;
+using ViridiX.Mason.Serialization;
 using ViridiX.Mason.Utilities;
 
 namespace ViridiX.Linguist.Process
@@ -75,7 +78,7 @@ namespace ViridiX.Linguist.Process
         /// </summary>
         public XboxModule Module => _module ?? (_module = _xbox.Process.GetModule(ModuleName));
 
-        public XboxDebugMonitor(Xbox xbox)
+        public XboxDebugMonitor(Xbox xbox, bool enableRemoteCodeExecution = false)
         {
             if (xbox == null)
                 throw new ArgumentNullException(nameof(xbox));
@@ -83,10 +86,127 @@ namespace ViridiX.Linguist.Process
             _xbox = xbox;
             _logger = xbox.Logger;
 
-            EnableRemoteCodeExecution();
+            if (enableRemoteCodeExecution == true)
+                EnableRemoteCodeExecution();
 
             _logger?.Info("XboxDebugMonitor subsystem initialized");
         }
+
+        #region Debug commands
+
+        public XboxCommandResponse DmStop()
+        {
+            return this._xbox.CommandSession.SendCommand("stop");
+        }
+
+        public XboxCommandResponse DmGo()
+        {
+            return this._xbox.CommandSession.SendCommand("go");
+        }
+
+        public XboxCommandResponse DmSetBreakpoint(uint address)
+        {
+            return this._xbox.CommandSession.SendCommand($"break addr=0x{address:X8}");
+        }
+
+        public XboxCommandResponse DmRemoveBreakpoint(uint address)
+        {
+            return this._xbox.CommandSession.SendCommand($"break addr=0x{address:X8} clear");
+        }
+
+        public XboxCommandResponse DmContinueThread(int thread, bool exception = false)
+        {
+            return this._xbox.CommandSession.SendCommand($"continue thread={thread} {(exception == true ? "exception" : "")}");
+        }
+
+        public byte[] DmReadFilePartial(string filePath, int offset, int size, int timeout = 0)
+        {
+            // Send the receive file command and check the response.
+            XboxCommandResponse response = this._xbox.CommandSession.SendCommand($"getfile name=\"{filePath}\" offset={offset} size={size}");
+            if (response.Type == XboxCommandResponseType.BinaryResponse && response.Message == "partial send")
+            {
+                // Read the binary data from the socket.
+                return this._xbox.CommandSession.ReceiveBinary(timeout);
+            }
+
+            // Response was invalid.
+            return null;
+        }
+
+        public ThreadContext DmGetThreadContext(int threadId, ContextFlags flags)
+        {
+            // Build the command based on the flags provided.
+            string command = $"getcontext thread={threadId}";
+            if (flags == ContextFlags.Full)
+                command += " full";
+            else
+            {
+                if ((flags & ContextFlags.Control) != 0)
+                    command += " control";
+                if ((flags & ContextFlags.Integer) != 0)
+                    command += " int";
+                if ((flags & ContextFlags.FloatingPoint) != 0)
+                    command += " fp";
+            }
+
+            // Send the command and get the response.
+            XboxCommandResponse response = this._xbox.CommandSession.SendCommand(command);
+            if (response.Type == XboxCommandResponseType.MultiResponse)
+            {
+                // Get the multiline response containing register values.
+                string[] lines = this._xbox.CommandSession.ReceiveLines().ToArray();
+
+                // Parse the response.
+                ThreadContext context = new ThreadContext();
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    // Split the line and check the register name.
+                    string[] pieces = lines[i].Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (pieces.Length == 0)
+                        continue;
+
+                    // Check the register name and handle accordingly.
+                    switch (pieces[0])
+                    {
+                        case "Esp": ParseThreadContextRegister(pieces[1], context, ref context.Esp, ContextFlags.Control); break;
+
+                        case "Ebp": ParseThreadContextRegister(pieces[1], context, ref context.Ebp, ContextFlags.Integer); break;
+                        case "Eip": ParseThreadContextRegister(pieces[1], context, ref context.Eip, ContextFlags.Integer); break;
+                        case "EFlags": ParseThreadContextRegister(pieces[1], context, ref context.EFlags, ContextFlags.Integer); break;
+                        case "Eax": ParseThreadContextRegister(pieces[1], context, ref context.Eax, ContextFlags.Integer); break;
+
+                        case "Ebx": ParseThreadContextRegister(pieces[1], context, ref context.Ebx, ContextFlags.Full); break;
+                        case "Ecx": ParseThreadContextRegister(pieces[1], context, ref context.Ecx, ContextFlags.Full); break;
+                        case "Edx": ParseThreadContextRegister(pieces[1], context, ref context.Edx, ContextFlags.Full); break;
+                        case "Esi": ParseThreadContextRegister(pieces[1], context, ref context.Esi, ContextFlags.Full); break;
+                        case "Edi": ParseThreadContextRegister(pieces[1], context, ref context.Edi, ContextFlags.Full); break;
+                        case "SegCs": ParseThreadContextRegister(pieces[1], context, ref context.SegCs, ContextFlags.Full); break;
+                        case "SegSs": ParseThreadContextRegister(pieces[1], context, ref context.SegSs, ContextFlags.Full); break;
+                    }
+                }
+
+                // TODO: Issue second command to get extended data
+
+                // Return the thread context.
+                return context;
+            }
+
+            // Response was invalid.
+            return null;
+        }
+
+        private void ParseThreadContextRegister(string stringValue, ThreadContext context, ref uint register, ContextFlags flags)
+        {
+            // Parse the string and assign the register value.
+            register = BitUtilities.ParseUintHexString(stringValue);
+
+            // Set the flags for the register type.
+            context.Flags |= flags;
+        }
+
+        #endregion
+
+        #region Remote code execution
 
         /// <summary>
         /// The HrFunctionCall function address.
@@ -309,5 +429,7 @@ namespace ViridiX.Linguist.Process
             byte[] hookBytes = Assembler.Assemble(new[] { $"push {scriptBuffer}", "retn" });
             _xbox.Memory.WriteBytes(HrFunctionCall, hookBytes);
         }
+
+        #endregion
     }
 }

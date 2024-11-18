@@ -132,7 +132,7 @@ namespace ViridiX.Linguist
             Process = new XboxProcess(this);
             DebugMonitor = new XboxDebugMonitor(this);
             FileSystem = new XboxFileSystem(this);
-            ConnectionId = Process.Call(Kernel.Exports.PhyGetLinkState, 0).ConnectionId;
+            //ConnectionId = Process.Call(Kernel.Exports.PhyGetLinkState, 0).ConnectionId;
             Logger?.Info("All Xbox subsystems have been successfully initialized");
         }
 
