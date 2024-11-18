@@ -93,8 +93,8 @@ namespace ViridiX.Linguist.Network
             _logger = logger;
             NoDelay = true;
             JitterThreshold = 3;
-            ReceiveTimeout = 100;
-            SendTimeout = 100;
+            ReceiveTimeout = 500;
+            SendTimeout = 500;
             SendBufferSize = 1024 * 1024 * 10;
             ReceiveBufferSize = 1024 * 1024 * 10;
         }
@@ -303,6 +303,26 @@ namespace ViridiX.Linguist.Network
             }
 
             return text.ToString();
+        }
+
+        public byte[] ReceiveBinary(int timeout = 0)
+        {
+            // Read the size of the binary data.
+            int size = this.Reader.ReadInt32();
+
+            // Sleep until the specified size is available in the socket buffer.
+            Stopwatch timer = Stopwatch.StartNew();
+            while ((timeout == 0 || timer.ElapsedTicks < timeout) && this.Available < size)
+            {
+                Thread.Sleep(10);
+            }
+
+            // Check to see if the specified size is available.
+            if (this.Available < size)
+                throw new InvalidDataException("Expecting more data than was sent");
+
+            // Read the available data.
+            return this.Reader.ReadBytes(size);
         }
 
         /// <summary>
